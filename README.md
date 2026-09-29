@@ -335,30 +335,5 @@ The database automatically initializes the following development accounts:
 
 ---
 
-## 11. Internship Interview Preparation Guide
-
-When discussing this project during technical interviews, highlight the following design decisions:
-
-### Q1: Why did you choose ASP.NET Core with .NET 8?
-> **Answer**: .NET 8 delivers industry-standard performance, cross-platform execution, first-class dependency injection, and native asynchronous I/O. Its built-in configuration, logging, and middleware pipeline reduce external dependencies while ensuring commercial security standards.
-
-### Q2: Why use a 3-Tier Layered Architecture instead of writing everything in Controllers?
-> **Answer**: Placing data access in controllers creates tight coupling and code duplication. By separating into `DAL` (data models & EF repositories), `BLL` (business logic, calculations, and DTO contracts), and `Presentation` (API endpoints and React SPA), each layer has a single responsibility. This makes the system maintainable, testable, and adaptable to future changes (e.g., swapping SQL Server for PostgreSQL or adding a mobile app).
-
-### Q3: How is Authentication and Security handled?
-> **Answer**: Passwords are never stored in plain text; they are salted and hashed using **BCrypt** with adaptive work factors. Authentication issues **HMAC-SHA256 signed JSON Web Tokens (JWT)** containing claims for user ID, username, email, and role. The backend API enforces RBAC via `[Authorize(Roles = "...")]` attributes, ensuring frontend route guards cannot be bypassed.
-
-### Q4: How are membership expirations calculated?
-> **Answer**: Rather than relying on fragile cron jobs or static database flags that can drift out of sync, `MemberService` calculates status dynamically by comparing `ExpiryDate` against `DateTime.UtcNow`. If `ExpiryDate < now`, the status is `Expired`; if within 7 days, `Expiring Soon`; otherwise `Active`.
-
-### Q5: How would you scale this application for enterprise deployment?
-> **Answer**:
-> 1. **Caching**: Introduce a Redis distributed cache for frequently read, rarely modified endpoints like `MembershipPlans` and `Trainers`.
-> 2. **Database Optimization**: Add read replicas for reporting queries and partition payment tables by fiscal year.
-> 3. **Background Jobs**: Integrate Hangfire or Azure Functions for asynchronous billing reminders and daily notification dispatch.
-> 4. **Containerization**: Package API into a Docker container deployed to Azure App Service or AWS ECS behind an Application Load Balancer.
-
----
-
-## 12. License
+## 11. License
 This project is developed for educational and portfolio demonstration purposes.
