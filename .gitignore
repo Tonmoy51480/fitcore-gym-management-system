@@ -1,0 +1,45 @@
+# .NET Build and Output
+[Bb]in/
+[Oo]bj/
+**/bin/
+**/obj/
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+**/.vs/
+_ReSharper*/
+*.suo
+*.userprefs
+
+# Entity Framework & Local Database
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Node / React Frontend
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.vite/
+**/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and Secrets
+.env
+.env.local
+.env.*.local
+appsettings.Production.json
+appsettings.*.local.json
+
+# IDE & OS Specific
+.idea/
+.vscode/
+*.swp
+*.DS_Store
+Thumbs.db
