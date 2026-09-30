@@ -1,4 +1,7 @@
 import type {
+  AttendanceCheckInPayload,
+  AttendanceCheckOutPayload,
+  AttendanceRecord,
   DashboardSummary,
   GlobalSearchResult,
   LoginResponse,
@@ -12,6 +15,7 @@ import type {
   MembershipPlanCreatePayload,
   MembershipPlanUpdatePayload,
   NotificationItem,
+  PagedResult,
   Payment,
   PaymentCreatePayload,
   RevenueReport,
@@ -98,6 +102,15 @@ export const api = {
       if (params?.status && params.status !== 'ALL') query.append('status', params.status);
       if (params?.planId) query.append('planId', params.planId.toString());
       return request<Member[]>(`/member?${query.toString()}`);
+    },
+    getPaged: (params?: { pageNumber?: number; pageSize?: number; search?: string; status?: string; planId?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.pageNumber) query.append('pageNumber', params.pageNumber.toString());
+      if (params?.pageSize) query.append('pageSize', params.pageSize.toString());
+      if (params?.search) query.append('search', params.search);
+      if (params?.status && params.status !== 'ALL') query.append('status', params.status);
+      if (params?.planId) query.append('planId', params.planId.toString());
+      return request<PagedResult<Member>>(`/member/paged?${query.toString()}`);
     },
     getById: (id: number) => request<MemberDetail>(`/member/${id}`),
     create: (data: MemberCreatePayload) =>
@@ -250,6 +263,24 @@ export const api = {
   // Search
   search: {
     global: (q: string) => request<GlobalSearchResult>(`/search?q=${encodeURIComponent(q)}`),
+  },
+
+  // Attendance
+  attendance: {
+    getActive: () => request<AttendanceRecord[]>('/attendance/active'),
+    getToday: () => request<AttendanceRecord[]>('/attendance/today'),
+    getMemberHistory: (memberId: number, limit = 50) =>
+      request<AttendanceRecord[]>(`/attendance/member/${memberId}?limit=${limit}`),
+    checkIn: (data: AttendanceCheckInPayload) =>
+      request<AttendanceRecord>('/attendance/check-in', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    checkOut: (data: AttendanceCheckOutPayload) =>
+      request<AttendanceRecord>('/attendance/check-out', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
   },
 
   // Notifications

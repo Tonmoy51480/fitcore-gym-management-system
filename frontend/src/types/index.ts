@@ -258,3 +258,36 @@ export interface NotificationItem {
   createdAt: string;
   isRead: boolean;
 }
+
+export interface AttendanceRecord {
+  id: number;
+  memberId: number;
+  memberName: string;
+  memberEmail: string;
+  membershipPlanName?: string;
+  checkInTime: string;
+  checkOutTime?: string;
+  durationMinutes?: number;
+  notes?: string;
+  isActive: boolean;
+}
+
+export interface AttendanceCheckInPayload {
+  memberId: number;
+  notes?: string;
+}
+
+export interface AttendanceCheckOutPayload {
+  memberId: number;
+  notes?: string;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
