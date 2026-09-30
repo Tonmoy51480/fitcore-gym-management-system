@@ -50,7 +50,7 @@ namespace BLL.Services
             var member = await _memberRepo.GetByIdAsync(dto.MemberId);
             if (member == null)
             {
-                throw new ArgumentException($"Member with ID {dto.MemberId} not found");
+                throw new KeyNotFoundException($"Member with ID {dto.MemberId} not found");
             }
 
             var payment = new Payment
