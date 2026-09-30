@@ -41,6 +41,19 @@ namespace gymandfitness.Controllers
             return Ok(members);
         }
 
+        // GET: api/member/paged?pageNumber=1&pageSize=10
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null,
+            [FromQuery] string? status = null,
+            [FromQuery] int? planId = null)
+        {
+            var paged = await _service.GetPagedAsync(pageNumber, pageSize, search, status, planId);
+            return Ok(paged);
+        }
+
         // GET: api/member/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
