@@ -386,3 +386,161 @@ input, select, textarea {
 .pulse-glow {
   animation: pulseGlow 2s infinite ease-in-out;
 }
+
+/* ==========================================================================
+   Responsive Viewport Rules
+   ========================================================================== */
+@media (min-width: 1025px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+  .mobile-drawer {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .desktop-sidebar {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+  .page-wrapper {
+    padding: 20px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-wrapper {
+    padding: 14px !important;
+  }
+  .nav-search-bar {
+    width: 170px !important;
+  }
+  .nav-search-bar span:last-child {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Print Media Styles: Printable Receipts, Invoices & Reports
+   ========================================================================== */
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide application navigation chrome, buttons, badges, notifications, and icons */
+  .sidebar,
+  .desktop-sidebar,
+  .mobile-drawer,
+  header,
+  .navbar,
+  button,
+  .btn,
+  .btn-icon,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .no-print {
+    display: none !important;
+  }
+
+  .app-container {
+    display: block !important;
+  }
+
+  .main-content {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .page-wrapper {
+    padding: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Printable Receipt / Invoice Modal Isolation */
+  #printable-receipt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 24px 32px !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    z-index: 99999 !important;
+    page-break-inside: avoid;
+  }
+
+  #printable-receipt * {
+    color: #0f172a !important;
+  }
+
+  #printable-receipt span[style*="color: #64748b"],
+  #printable-receipt p[style*="color: #64748b"],
+  #printable-receipt div[style*="color: #64748b"],
+  #printable-receipt div[style*="color: #94a3b8"] {
+    color: #475569 !important;
+  }
+
+  #printable-receipt span[style*="color: #059669"] {
+    color: #059669 !important;
+    font-weight: 800 !important;
+  }
+
+  /* Clean up modal backdrop wrapper in print mode */
+  div[style*="backdropFilter"],
+  div[style*="backdrop-filter"] {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    position: static !important;
+    padding: 0 !important;
+  }
+
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    color: #0f172a !important;
+  }
+
+  /* Preserve printable data tables for business reports */
+  .data-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .data-table th {
+    background: #f8fafc !important;
+    color: #334155 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    padding: 8px 12px !important;
+  }
+
+  .data-table td {
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Prevent page breaks inside cards and table rows */
+  tr, .glass-card, #printable-receipt {
+    page-break-inside: avoid;
+  }
+}
+
