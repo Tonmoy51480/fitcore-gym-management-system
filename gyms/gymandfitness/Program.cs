@@ -1,25 +1,53 @@
+using BLL.Configuration;
 using BLL.Services;
 using DAL.EF;
 using DAL.Interfaces;
 using DAL.Repositories;
 using gymandfitness.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Database Connection
+// 1. Strongly Typed Configuration Options
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
+builder.Services.Configure<ClubSettings>(builder.Configuration.GetSection(ClubSettings.SectionName));
+
+// 2. Database Connection (Strict DefaultConnection validation)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=(localdb)\\MSSQLLocalDB;Database=GymManagementDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;";
+    ?? throw new InvalidOperationException("Critical: Connection string 'DefaultConnection' was not found in configuration.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString)
 );
 
-// 2. Repositories (DAL)
+// 3. Health Checks (Liveness and Database Readiness)
+builder.Services.AddHealthChecks()
+    .AddAsyncCheck("SqlDatabase", async () =>
+    {
+        try
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            optionsBuilder.UseSqlServer(connectionString);
+            using var ctx = new ApplicationDbContext(optionsBuilder.Options);
+            bool canConnect = await ctx.Database.CanConnectAsync();
+            return canConnect
+                ? HealthCheckResult.Healthy("SQL Server database connection verified.")
+                : HealthCheckResult.Unhealthy("SQL Server database connection cannot be established.");
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy("SQL Server health check encountered an error.", ex);
+        }
+    });
+
+// 4. Repositories (DAL)
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
@@ -29,7 +57,7 @@ builder.Services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>(
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
-// 3. Services (BLL)
+// 5. Services (BLL)
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
@@ -41,7 +69,7 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
-// 4. CORS Configuration
+// 6. CORS Configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -52,7 +80,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 5. JWT Authentication
+// 7. JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "GymFitness_SuperSecret_Jwt_Enterprise_Key_2026_SecureToken!";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "GymFitnessApi";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "GymFitnessClient";
@@ -80,7 +108,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 6. Swagger with JWT Support
+// 8. Swagger with JWT Support
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -117,7 +145,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 7. Auto-migration & Database Seeding
+// 9. Auto-migration & Database Seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -133,7 +161,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// 8. HTTP Pipeline Configuration
+// 10. HTTP Pipeline Configuration
 app.UseMiddleware<gymandfitness.Middleware.ExceptionMiddleware>();
 
 app.UseSwagger();
@@ -144,6 +172,25 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseCors("AllowAll");
+
+// Health check endpoint with standardized JSON output
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var payload = new
+        {
+            status = report.Status.ToString(),
+            database = report.Entries.TryGetValue("SqlDatabase", out var dbEntry) ? dbEntry.Status.ToString() : "Unknown",
+            timestamp = DateTime.UtcNow,
+            totalDurationMs = Math.Round(report.TotalDuration.TotalMilliseconds, 2),
+            service = "FITCORE Management API",
+            environment = app.Environment.EnvironmentName
+        };
+        await context.Response.WriteAsync(JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
+    }
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
