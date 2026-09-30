@@ -86,6 +86,12 @@ namespace BLL.Services
                 }
             }
 
+            var existingMembers = await _repo.FindAsync(m => m.Email.ToLower() == dto.Email.Trim().ToLower());
+            if (existingMembers.Any())
+            {
+                throw new ArgumentException($"A member with email '{dto.Email}' already exists in the system.");
+            }
+
             var joinDate = DateTime.UtcNow;
             var expiryDate = joinDate.AddMonths(durationMonths);
 
@@ -222,6 +228,15 @@ namespace BLL.Services
         {
             var member = await _repo.GetByIdWithDetailsAsync(id);
             if (member == null) return null;
+
+            if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email.Trim().ToLower() != member.Email.ToLower())
+            {
+                var existing = await _repo.FindAsync(m => m.Email.ToLower() == dto.Email.Trim().ToLower() && m.Id != id);
+                if (existing.Any())
+                {
+                    throw new ArgumentException($"A member with email '{dto.Email}' already exists in the system.");
+                }
+            }
 
             member.Name = dto.Name.Trim();
             member.Email = dto.Email.Trim().ToLower();
