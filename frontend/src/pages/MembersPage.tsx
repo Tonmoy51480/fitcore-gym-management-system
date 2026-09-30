@@ -37,6 +37,14 @@ export const MembersPage: React.FC<MembersPageProps> = ({ initialRenewId, onClea
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Pagination states
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const [hasNextPage, setNextPage] = useState(false);
+
   // Filters
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -84,15 +92,26 @@ export const MembersPage: React.FC<MembersPageProps> = ({ initialRenewId, onClea
     notes: 'Membership renewal',
   });
 
-  const loadData = async () => {
+  const loadData = async (targetPage = pageNumber, targetPageSize = pageSize) => {
     setLoading(true);
     try {
-      const [membersRes, plansRes, trainersRes] = await Promise.all([
-        api.members.getAll({ search, status: statusFilter, planId: planFilter }),
+      const [pagedRes, plansRes, trainersRes] = await Promise.all([
+        api.members.getPaged({
+          pageNumber: targetPage,
+          pageSize: targetPageSize,
+          search: search.trim() || undefined,
+          status: statusFilter !== 'ALL' ? statusFilter : undefined,
+          planId: planFilter,
+        }),
         api.plans.getAll({ activeOnly: true }),
         api.trainers.getAll({ activeOnly: true }),
       ]);
-      setMembers(membersRes);
+      setMembers(pagedRes.items);
+      setTotalCount(pagedRes.totalCount);
+      setTotalPages(pagedRes.totalPages);
+      setHasPreviousPage(pagedRes.hasPreviousPage);
+      setNextPage(pagedRes.hasNextPage);
+      setPageNumber(pagedRes.pageNumber);
       setPlans(plansRes);
       setTrainers(trainersRes);
     } catch (err: any) {
@@ -103,8 +122,8 @@ export const MembersPage: React.FC<MembersPageProps> = ({ initialRenewId, onClea
   };
 
   useEffect(() => {
-    loadData();
-  }, [search, statusFilter, planFilter]);
+    loadData(1, pageSize);
+  }, [search, statusFilter, planFilter, pageSize]);
 
   // Handle auto-open renewal if navigated from dashboard
   useEffect(() => {
@@ -411,6 +430,111 @@ export const MembersPage: React.FC<MembersPageProps> = ({ initialRenewId, onClea
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Footer */}
+          {totalCount > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 20px',
+                borderTop: '1px solid var(--border-color)',
+                background: 'rgba(255, 255, 255, 0.01)',
+                flexWrap: 'wrap',
+                gap: 12,
+              }}
+            >
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                Showing{' '}
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {(pageNumber - 1) * pageSize + 1}
+                </span>{' '}
+                to{' '}
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {Math.min(pageNumber * pageSize, totalCount)}
+                </span>{' '}
+                of{' '}
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {totalCount}
+                </span>{' '}
+                registered members
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {/* Page Size Selector */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      const newSize = Number(e.target.value);
+                      setPageSize(newSize);
+                    }}
+                    style={{
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 6,
+                      color: 'var(--text-primary)',
+                      padding: '4px 8px',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    onClick={() => loadData(pageNumber - 1)}
+                    disabled={!hasPreviousPage || loading}
+                    className="btn btn-secondary"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      opacity: !hasPreviousPage ? 0.5 : 1,
+                      cursor: !hasPreviousPage ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Previous
+                  </button>
+
+                  <span
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      color: 'var(--accent-emerald)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                    }}
+                  >
+                    {pageNumber} / {Math.max(1, totalPages)}
+                  </span>
+
+                  <button
+                    onClick={() => loadData(pageNumber + 1)}
+                    disabled={!hasNextPage || loading}
+                    className="btn btn-secondary"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      opacity: !hasNextPage ? 0.5 : 1,
+                      cursor: !hasNextPage ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
