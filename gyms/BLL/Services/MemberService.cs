@@ -164,6 +164,18 @@ namespace BLL.Services
             return result;
         }
 
+        public async Task<PagedResult<MemberResponseDTO>> GetPagedAsync(int pageNumber, int pageSize, string? search = null, string? status = null, int? planId = null)
+        {
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            var (items, totalCount) = await _repo.GetPagedAsync(pageNumber, pageSize, search, status, planId);
+            var dtos = items.Select(MapToResponse).ToList();
+
+            return new PagedResult<MemberResponseDTO>(dtos, totalCount, pageNumber, pageSize);
+        }
+
         public async Task<MemberDetailResponseDTO?> GetByIdAsync(int id)
         {
             var m = await _repo.GetByIdWithDetailsAsync(id);
