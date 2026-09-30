@@ -15,6 +15,7 @@ namespace DAL.EF
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<Attendance> Attendances { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +55,19 @@ namespace DAL.EF
                 .WithMany(t => t.Workouts)
                 .HasForeignKey(w => w.TrainerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Attendance Relationships & Indexes
+            modelBuilder.Entity<Attendance>()
+                .HasOne(a => a.Member)
+                .WithMany(m => m.Attendances)
+                .HasForeignKey(a => a.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Attendance>()
+                .HasIndex(a => a.CheckInTime);
+
+            modelBuilder.Entity<Attendance>()
+                .HasIndex(a => new { a.MemberId, a.CheckInTime });
 
             // Unique constraints
             modelBuilder.Entity<User>()

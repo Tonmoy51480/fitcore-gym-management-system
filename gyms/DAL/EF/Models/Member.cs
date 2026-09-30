@@ -21,5 +21,6 @@ namespace DAL.EF.Models
         public Trainer? AssignedTrainer { get; set; }
 
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
     }
 }
