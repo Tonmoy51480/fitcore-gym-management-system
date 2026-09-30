@@ -4,33 +4,44 @@
 
 ---
 
-## 1. Overview
+## 1. Executive Summary & Overview
 
-**FITCORE** is an end-to-end, multi-tier gym management ecosystem developed using modern software engineering patterns. Built with an **ASP.NET Core 8 Web API** backend and a **React 19 + TypeScript** SPA frontend, FITCORE orchestrates member life cycles, trainer rosters, customizable membership plans, workout programming, recurring payments with invoice generation, analytics reporting, and real-time alerts.
+**FITCORE** is an end-to-end, multi-tier gym management ecosystem engineered with production-ready software architecture patterns. Built with an **ASP.NET Core 8 Web API** backend and a **React 19 + TypeScript** SPA frontend, FITCORE coordinates member lifecycles, real-time turnstile/front desk attendance tracking, trainer assignments, customizable membership plans, workout routine programming, financial transaction recording with printable invoice generation, analytical business reporting, and automated alerts.
 
-The project demonstrates production-grade competencies in:
-* **Clean Layered Architecture** (DAL, BLL, Presentation API, Client SPA)
-* **Generic & Specific Repository Patterns** with asynchronous EF Core 9 operations
-* **Service-Oriented Business Logic** with Data Transfer Objects (DTOs) and fluent validation
-* **JWT Bearer Authentication & Role-Based Access Control (RBAC)** across `ADMIN`, `STAFF`, and `TRAINER` tiers
-* **Relational Database Design** using Microsoft SQL Server with strict foreign keys, indexing, and precision modeling
-* **Centralized Exception Handling Middleware** with standardized error envelopes
-* **Responsive SaaS UI/UX** with dynamic dark/light theming, SVG analytical visualizations, and global keyboard search (`/`)
+The codebase showcases real-world, enterprise-level competencies:
+* **Clean Layered Architecture**: Clear Separation of Concerns (Presentation, Business Logic, and Data Access layers).
+* **Repository & Unit-of-Work Patterns**: Generic & specific asynchronous repository interfaces decoupling business logic from EF Core.
+* **Service-Oriented Business Logic**: Decoupled Data Transfer Objects (DTOs) with defensive business rule validation.
+* **Server-Side Pagination & Optimization**: Dynamic `PagedResult<T>` with SQL-level `CountAsync()`, `Skip()`, and `Take()` evaluation to eliminate memory bloat on large datasets.
+* **JWT Bearer Authentication & Hardened RBAC**: Cryptographic token authentication with granular Role-Based Access Control (`ADMIN`, `STAFF`, `TRAINER`).
+* **Relational Schema Modeling**: Microsoft SQL Server schema with normalized foreign key constraints, cascading policies, and index-optimized query paths.
+* **Operational Health Diagnostics**: Direct `/health` monitoring endpoint assessing SQL Server engine connectivity and ping latency.
+* **Centralized Error Envelope Pipeline**: Custom global middleware intercepting unhandled exceptions and emitting RFC 7807 problem details.
+* **Responsive SaaS UI/UX**: Dark fitness aesthetic with glassmorphism, fluid mobile drawers, `@media print` paper receipt styles, and keyboard shortcuts (`/`).
 
 ---
 
-## 2. Key Features
+## 2. Key Modules & Functional Capabilities
 
-### 🏋️ Member Management
-* **Full Lifecycle Operations**: Create, update, view, and deactivate member accounts.
+### 🏢 Real-Time Attendance Desk
+* **Instant Check-In / Check-Out**: Rapid front desk processing with automated timestamp logging.
+* **Floor Occupancy Counter**: Real-time KPI monitoring of active patrons currently in the facility.
+* **Automated Duration Computation**: Calculates logged training duration in minutes upon checkout.
+* **Membership Expiry Gating**: Automatically rejects check-ins for members with expired contracts or inactive profiles (`InvalidOperationException`).
+* **Active Session Lock**: Prevents duplicate concurrent check-ins for patrons already on the floor.
+* **Patron Attendance Ledger**: Comprehensive historical session logs per member.
+
+### 🏋️ Member Management & Server-Side Pagination
+* **Full Lifecycle Operations**: Create, update, view, and soft/hard deactivate member accounts.
 * **Intelligent Membership Status Engine**: Dynamically calculates `Active`, `Expiring Soon` (within 7 days), `Expired`, and `Inactive` states.
-* **1-Click Renewal**: Extends membership duration, auto-generates payment ledger entries, and records system audit notifications.
-* **360° Member Dossier**: Comprehensive tabs for Member Profile, Active Membership, Historical Payments, and Activity logs.
+* **Server-Side Pagination**: High-efficiency paginated queries (`GET /api/member/paged`) supporting customizable page sizes (5, 10, 25, 50), text search, and status filtering.
+* **1-Click Renewal**: Extends membership duration from the current expiration date (or current date if expired), records revenue ledger entries, and emits system alerts.
+* **360° Member Dossier**: Comprehensive tabs for Member Profile, Active Membership, Historical Payments, and Attendance sessions.
 
-### 💳 Financial Ledger & Receipts
-* **Transaction Recording**: Tracks payments across Cash, Credit Card, Mobile Banking, and Bank Transfer channels.
-* **Strict Financial Validation**: Rejects negative or zero sums and enforces non-null member association.
-* **Invoice Receipt Generator**: Printable, formatted receipts containing transaction IDs, timestamps, and club info.
+### 💳 Financial Ledger & Printable Receipts
+* **Multi-Channel Ledger**: Tracks dues across Cash, Credit Card, Mobile Banking, and Bank Transfer channels.
+* **Defensive Integrity Checks**: Rejects zero or negative amounts, and validates existing member foreign keys (`KeyNotFoundException`).
+* **Printable Paper Invoices**: Commercial-grade print stylesheet (`@media print`) that isolates receipts, strips dark application chrome, and renders clean paper invoices.
 * **Revenue Metrics**: Real-time aggregation of total revenue and current-month turnover.
 
 ### 📋 Membership Plans & Tiering
@@ -48,24 +59,24 @@ The project demonstrates production-grade competencies in:
 * **Workload Metrics**: Computes active member caseload and assigned training sessions.
 
 ### 📊 Real-Time Analytics & Reports
-* **Executive Dashboard**: Top-level KPI counter cards (Total Members, Active Roster, Expired Members, Total Revenue).
+* **Executive Dashboard**: Top-level KPI counter cards (Total Members, Active Floor Occupants, Expired Members, Total Revenue).
 * **SVG Visualizations**: Interactive Revenue Over Time charts and Membership Tier distributions.
 * **CSV Export**: One-click download of revenue and roster reports for offline auditing.
 
 ### 🔔 System Notifications & Global Search
-* **Automated Alerts**: System-triggered alerts for expiring plans, recorded payments, and roster changes.
+* **Automated Alerts**: System-triggered alerts for expiring plans, recorded payments, check-ins, and roster changes.
 * **Global Search (`/` Shortcut)**: Instant full-text search across members, trainers, plans, workouts, and transactions.
 
 ---
 
-## 3. Technologies & Frameworks
+## 3. Technology Stack & Frameworks
 
 | Domain | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Backend Runtime** | .NET 8.0 (C# 12) | High-performance Web API runtime |
+| **Backend Runtime** | .NET 8.0 (C# 12) | High-performance, cross-platform Web API host |
 | **Data Access** | Entity Framework Core 9.0 | ORM with code-first migrations and LINQ queries |
 | **Database** | Microsoft SQL Server (Local / Express) | Relational database engine |
-| **Security** | BCrypt.Net-Next & System.IdentityModel.Tokens.Jwt | Cryptographic salt hashing & HMAC-SHA256 JWT tokens |
+| **Security & Auth** | BCrypt.Net-Next & System.IdentityModel.Tokens.Jwt | Cryptographic salt hashing & HMAC-SHA256 JWT tokens |
 | **API Documentation** | Swashbuckle / Swagger OpenAPI | Interactive API sandbox with Bearer token authentication |
 | **Frontend Framework** | React 19 & TypeScript | Declarative, strictly typed UI components |
 | **Build Tool** | Vite 8 | Instant HMR development and optimized production bundling |
@@ -74,7 +85,7 @@ The project demonstrates production-grade competencies in:
 
 ---
 
-## 4. Architecture & Design Patterns
+## 4. Architectural Patterns & Data Flow
 
 FITCORE follows a strict, enterprise-compliant **Separation of Concerns (SoC)** model:
 
@@ -82,33 +93,37 @@ FITCORE follows a strict, enterprise-compliant **Separation of Concerns (SoC)** 
 FITCORE Architecture
 ├── Presentation Layer (Client)
 │   └── React 19 + TypeScript SPA (Vite)
-│       └── Centralized API Service (`src/services/api.ts`)
+│       ├── Services Client (`src/services/api.ts`)
+│       ├── UI Pages (`src/pages/*.tsx`)
+│       ├── Design System & Media Queries (`src/index.css`)
+│       └── State Contexts (AuthContext, ToastContext)
 │
-├── API Gateway / Presentation Layer (Web API)
+├── API Presentation Layer (ASP.NET Core Web API)
 │   ├── Controllers (`gymandfitness/Controllers/*.cs`) - Thin HTTP adapters
 │   ├── Middleware (`gymandfitness/Middleware/ExceptionMiddleware.cs`) - Error handling
-│   └── Program.cs - Dependency injection & middleware pipeline
+│   ├── Health Endpoint (`/health`) - Real-time DB connectivity verification
+│   └── Program.cs - Dependency injection & pipeline composition
 │
 ├── Business Logic Layer (BLL)
-│   ├── Services (`BLL/Services/*.cs`) - Business rules, status calculations, JWT creation
-│   └── DTOs (`BLL/DTOs/*.cs`) - Strong request/response contracts
+│   ├── Services (`BLL/Services/*.cs`) - Business rules, session locks, JWT creation
+│   └── DTOs (`BLL/DTOs/*.cs`) - Strong request/response contracts & PagedResult<T>
 │
 └── Data Access Layer (DAL)
     ├── EF Core DbContext (`DAL/EF/ApplicationDbContext.cs`)
     ├── Entity Models (`DAL/EF/Models/*.cs`)
     ├── Repositories (`DAL/Repositories/*.cs`) - Generic & specific data queries
-    └── Migrations (`DAL/Migrations/*.cs`) - Schema versioning
+    └── Migrations (`DAL/Migrations/*.cs`) - Code-first schema versioning
 ```
 
-### Key Architectural Decisions
-1. **Thin Controllers**: Controllers never execute business rules or database queries directly; they accept DTOs, delegate to BLL services, and return standard `IActionResult` responses.
-2. **Repository Abstraction**: Repositories isolate EF Core dependencies (`IGenericRepository<T>`, `IMemberRepository`, `ITrainerRepository`, etc.), facilitating clean mocking and unit testing.
-3. **DTO Decoupling**: Database entities are never returned raw to the client, preventing over-posting attacks and circular reference serialization loops.
-4. **Asynchronous Non-Blocking I/O**: `async`/`await` is applied end-to-end through every controller, service, and repository method.
+### Architectural Highlights
+1. **Thin Controller Design**: Controllers never execute business rules or database queries directly; they accept DTOs, delegate to BLL services, and return standard HTTP action results.
+2. **Server-Side Pagination Pipeline**: Member queries evaluate `CountAsync()` at the SQL level before executing `Skip((page - 1) * pageSize).Take(pageSize)` asynchronously.
+3. **DTO Decoupling**: Database entities are never exposed raw over the network, mitigating mass-assignment vulnerabilities and reference cycle serialization errors.
+4. **Resilient Middleware**: Global `ExceptionMiddleware` catches domain exceptions (e.g., `KeyNotFoundException` → 404, `InvalidOperationException` → 400, `ArgumentException` → 400) and formats a structured JSON envelope.
 
 ---
 
-## 5. Database Schema & Entity Relationships
+## 5. Database Schema & Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -147,7 +162,7 @@ erDiagram
     Members {
         int Id PK
         string Name
-        string Email
+        string Email UK
         string Phone
         string EmergencyContact
         datetime JoinDate
@@ -155,6 +170,16 @@ erDiagram
         string Status
         int MembershipPlanId FK
         int AssignedTrainerId FK
+    }
+
+    Attendance {
+        int Id PK
+        int MemberId FK
+        datetime CheckInTime
+        datetime CheckOutTime
+        int DurationMinutes
+        string Status
+        string Notes
     }
 
     Workouts {
@@ -193,28 +218,73 @@ erDiagram
     Trainers ||--o{ Members : "1 to Many (SetNull on delete)"
     Trainers ||--o{ Workouts : "1 to Many (Cascade on delete)"
     Members ||--o{ Payments : "1 to Many (Cascade on delete)"
+    Members ||--o{ Attendance : "1 to Many (Cascade on delete)"
 ```
 
 ---
 
-## 6. REST API Endpoints
+## 6. Role-Based Access Control (RBAC) Security Matrix
+
+| Endpoint | Method | Permitted Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `/health` | `GET` | **Anonymous** | System and database latency health check |
+| `/api/auth/login` | `POST` | **Anonymous** | User authentication and JWT token generation |
+| `/api/auth/register` | `POST` | **Anonymous** | New staff or trainer registration |
+| `/api/auth/me` | `GET` | `ADMIN`, `STAFF`, `TRAINER` | Current authenticated user profile |
+| `/api/member` | `GET` | `ADMIN`, `STAFF` | Unpaginated member list with search filters |
+| `/api/member/paged` | `GET` | `ADMIN`, `STAFF` | Server-side paginated member dataset |
+| `/api/member/{id}` | `GET` | `ADMIN`, `STAFF` | Single member profile with payment ledger |
+| `/api/member` | `POST` | `ADMIN`, `STAFF` | Register new member account |
+| `/api/member/{id}` | `PUT` | `ADMIN`, `STAFF` | Update existing member profile |
+| `/api/member/{id}` | `DELETE` | `ADMIN` *(Strict)* | Permanently delete member (Staff returns 403) |
+| `/api/member/{id}/renew` | `POST` | `ADMIN`, `STAFF` | Renew member contract & record dues |
+| `/api/attendance/check-in` | `POST` | `ADMIN`, `STAFF` | Floor check-in with membership verification |
+| `/api/attendance/check-out` | `POST` | `ADMIN`, `STAFF` | Floor checkout with duration calculation |
+| `/api/attendance/active` | `GET` | `ADMIN`, `STAFF` | Active floor occupants roster |
+| `/api/attendance/today` | `GET` | `ADMIN`, `STAFF` | Full day attendance log |
+| `/api/attendance/member/{id}` | `GET` | `ADMIN`, `STAFF` | Specific patron attendance history |
+| `/api/payment` | `GET`, `POST` | `ADMIN`, `STAFF` | Dues ledger queries and transaction recording |
+| `/api/payment/{id}` | `GET` | `ADMIN`, `STAFF` | Individual receipt retrieval |
+| `/api/membershipplan` | `GET` | All Authenticated | Query membership plan catalog |
+| `/api/membershipplan` | `POST`, `PUT`, `DELETE`| `ADMIN` | Manage plan pricing and availability |
+| `/api/trainer` | `GET` | All Authenticated | Trainer roster and caseload |
+| `/api/trainer` | `POST`, `PUT`, `DELETE`| `ADMIN` | Manage trainer roster |
+| `/api/workout` | `GET` | All Authenticated | Routine library |
+| `/api/workout` | `POST`, `PUT` | `ADMIN`, `TRAINER` | Routine authoring and trainer assignment |
+| `/api/workout/{id}` | `DELETE` | `ADMIN` | Delete workout routine |
+| `/api/reports/*` | `GET` | `ADMIN` | Financial and cohort analytics reports |
+
+---
+
+## 7. REST API Endpoint Directory
+
+### 🏥 Health & Diagnostics
+* `GET /health` — Returns JSON health telemetry: database connectivity, response duration in ms, and service status.
 
 ### 🔐 Authentication (`/api/auth`)
-* `POST /api/auth/register` — Register a new user account (Staff, Trainer, Admin).
+* `POST /api/auth/register` — Register a new user account (`ADMIN`, `STAFF`, `TRAINER`).
 * `POST /api/auth/login` — Authenticate credentials; returns user profile and signed JWT token.
-* `GET  /api/auth/me` — Retrieve currently authenticated user profile `[Authorize]`.
-* `PUT  /api/auth/profile` — Update account profile details `[Authorize]`.
-* `POST /api/auth/change-password` — Change user password securely `[Authorize]`.
+* `GET  /api/auth/me` — Retrieve currently authenticated user profile.
+* `PUT  /api/auth/profile` — Update account profile details.
+* `POST /api/auth/change-password` — Change user password securely.
 
 ### 👥 Member Management (`/api/member`)
 * `GET    /api/member` — List members with optional query filters (`search`, `status`, `planId`).
+* `GET    /api/member/paged` — Server-side paginated member dataset (`page`, `pageSize`, `search`, `status`, `planId`).
 * `GET    /api/member/{id}` — Get single member dossier with nested payment ledger.
 * `POST   /api/member` — Create member and optional initial payment.
 * `PUT    /api/member/{id}` — Update existing member details.
-* `DELETE /api/member/{id}` — Remove member account and cascade related payments.
+* `DELETE /api/member/{id}` — Remove member account (Strict Admin privilege).
 * `POST   /api/member/{id}/renew` — Renew membership for specified months.
 * `GET    /api/member/expired` — List all expired members.
 * `GET    /api/member/expiring-soon` — List members expiring within 7 days.
+
+### 🏢 Attendance Tracking (`/api/attendance`)
+* `POST /api/attendance/check-in` — Check in a member to the facility. Validates active membership and session lock.
+* `POST /api/attendance/check-out` — Check out a member and compute elapsed session duration.
+* `GET  /api/attendance/active` — Real-time list of all patrons currently inside the gym.
+* `GET  /api/attendance/today` — All attendance sessions initiated today.
+* `GET  /api/attendance/member/{memberId}` — Full historical attendance sessions for a specific patron.
 
 ### 📋 Membership Plans (`/api/membershipplan`)
 * `GET    /api/membershipplan` — List all active plans.
@@ -263,7 +333,7 @@ erDiagram
 
 ---
 
-## 7. Installation & Configuration
+## 8. Installation, Configuration & Database Setup
 
 ### Prerequisites
 * **.NET 8.0 SDK** ([Download](https://dotnet.microsoft.com/download/dotnet/8.0))
@@ -274,17 +344,8 @@ erDiagram
   dotnet tool install --global dotnet-ef
   ```
 
----
-
-## 8. Database Setup
-
-1. Verify that your SQL Server instance is running:
-   ```powershell
-   # Windows Service Check
-   Get-Service -Name "MSSQL$SQLEXPRESS"
-   ```
-
-2. Open `gyms/gymandfitness/appsettings.json` and ensure the connection string matches your local SQL Server instance:
+### Configuration & Migrations
+1. Open `gyms/gymandfitness/appsettings.json` and configure your local SQL Server instance:
    ```json
    {
      "ConnectionStrings": {
@@ -292,8 +353,7 @@ erDiagram
      }
    }
    ```
-
-3. Apply Entity Framework Core migrations:
+2. Apply database migrations to automatically scaffold tables, constraints, and indexes:
    ```powershell
    cd c:\Users\USER\Downloads\gyms
    dotnet ef database update --project .\gyms\DAL\DAL.csproj --startup-project .\gyms\gymandfitness\gymandfitness.csproj
@@ -303,37 +363,38 @@ erDiagram
 
 ## 9. Running the Application
 
-### Starting the Backend API
+### 1. Start Backend API
 ```powershell
 cd c:\Users\USER\Downloads\gyms
 dotnet run --project .\gyms\gymandfitness\gymandfitness.csproj --urls http://localhost:5079
 ```
-* **REST API & Endpoints**: `http://localhost:5079`
-* **Swagger UI Documentation**: `http://localhost:5079/swagger`
+* **REST API Host**: `http://localhost:5079`
+* **Swagger OpenAPI Docs**: `http://localhost:5079/swagger`
+* **Health Check**: `http://localhost:5079/health`
 
-### Starting the Frontend Web App
+### 2. Start Frontend SPA
 ```powershell
 cd c:\Users\USER\Downloads\gyms\frontend
 npm install
 npm run dev
 ```
-* **Web Application**: `http://localhost:3000`
+* **Client Application**: `http://localhost:3000`
 
 ---
 
-## 10. Development Test Credentials
+## 10. Development Test Accounts
 
-The database automatically initializes the following development accounts:
+The database seed routine automatically provisions the following testing accounts:
 
 | Role | Username | Password | Access Rights |
 | :--- | :--- | :--- | :--- |
-| **ADMIN** | `admin` | `Admin@123` | Full enterprise administrative privileges |
-| **STAFF** | `staff` | `Staff@123` | Member lifecycle, plan renewals, and payment recording |
-| **TRAINER** | `trainer` | `Trainer@123` | Workout scheduling and assigned member tracking |
+| **ADMIN** | `admin` | `Admin@123` | Full enterprise control (member deletion, plan management, reports) |
+| **STAFF** | `staff` | `Staff@123` | Attendance check-in/out, member registration/renewal, dues recording |
+| **TRAINER** | `trainer` | `Trainer@123` | Workout routine authoring, caseload inspection |
 
-*(Note: Click any demo pill on the login page to automatically fill credentials.)*
+*(Note: Click any demo credential pill on the login screen to auto-fill the login form.)*
 
 ---
 
 ## 11. License
-This project is developed for educational and portfolio demonstration purposes.
+This project is open-source and developed for software engineering portfolio and educational demonstration purposes.
