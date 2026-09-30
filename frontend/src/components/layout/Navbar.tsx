@@ -105,8 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <button
           onClick={onOpenMobileSidebar}
-          className="btn-icon"
-          style={{ display: 'flex' }}
+          className="btn-icon mobile-menu-btn"
           aria-label="Open menu"
         >
           <Menu size={20} />
@@ -115,6 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Global Search trigger bar */}
         <div
           onClick={onOpenSearch}
+          className="nav-search-bar"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -179,6 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {[
                 { label: 'Register Member', action: 'add-member' },
+                { label: 'Attendance Desk', action: 'attendance-desk' },
                 { label: 'Record Payment', action: 'record-payment' },
                 { label: 'Add Workout', action: 'add-workout' },
                 { label: 'Add Trainer', action: 'add-trainer' },

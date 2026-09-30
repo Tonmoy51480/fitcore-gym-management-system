@@ -10,6 +10,7 @@ import {
   Clock,
   Sparkles,
   ArrowUpRight,
+  UserCheck,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { StatusBadge, PaymentMethodBadge } from '../components/common/Badge';
@@ -77,6 +78,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onQuic
           >
             <PlusCircle size={16} />
             <span>Add Member</span>
+          </button>
+          <button
+            onClick={() => onQuickAction('attendance-desk')}
+            className="btn btn-secondary"
+            style={{ fontSize: 13 }}
+          >
+            <UserCheck size={16} color="var(--accent-amber)" />
+            <span>Attendance Desk</span>
           </button>
           <button
             onClick={() => onQuickAction('record-payment')}

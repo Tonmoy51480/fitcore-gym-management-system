@@ -44,6 +44,8 @@ const AppContent: React.FC = () => {
   const handleQuickAction = (action: string) => {
     if (action === 'add-member') {
       setCurrentPage('members');
+    } else if (action === 'attendance-desk' || action === 'attendance') {
+      setCurrentPage('attendance');
     } else if (action === 'record-payment') {
       setCurrentPage('payments');
     } else if (action === 'add-workout') {
