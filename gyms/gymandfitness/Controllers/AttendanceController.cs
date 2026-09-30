@@ -19,6 +19,7 @@ namespace gymandfitness.Controllers
         }
 
         // POST: api/attendance/check-in
+        [Authorize(Roles = "ADMIN,STAFF")]
         [HttpPost("check-in")]
         public async Task<IActionResult> CheckIn([FromBody] AttendanceCheckInDTO dto)
         {
@@ -30,6 +31,7 @@ namespace gymandfitness.Controllers
         }
 
         // POST: api/attendance/check-out
+        [Authorize(Roles = "ADMIN,STAFF")]
         [HttpPost("check-out")]
         public async Task<IActionResult> CheckOut([FromBody] AttendanceCheckOutDTO dto)
         {
