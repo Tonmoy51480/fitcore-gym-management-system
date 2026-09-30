@@ -422,6 +422,48 @@ namespace gymandfitness.Data
                 await context.Notifications.AddRangeAsync(notifications);
                 await context.SaveChangesAsync();
             }
+
+            // 7. Seed Attendance Records
+            if (!await context.Attendances.AnyAsync())
+            {
+                var members = await context.Members.ToListAsync();
+                if (members.Any())
+                {
+                    var attendances = new List<Attendance>
+                    {
+                        new Attendance
+                        {
+                            MemberId = members[0].Id,
+                            CheckInTime = DateTime.UtcNow.AddHours(-2).AddMinutes(-15),
+                            CheckOutTime = DateTime.UtcNow.AddMinutes(-20),
+                            Notes = "Cardio & Treadmill session"
+                        },
+                        new Attendance
+                        {
+                            MemberId = members[0].Id,
+                            CheckInTime = DateTime.UtcNow.AddDays(-1).AddHours(-4),
+                            CheckOutTime = DateTime.UtcNow.AddDays(-1).AddHours(-2).AddMinutes(-30),
+                            Notes = "Upper body strength routine"
+                        },
+                        new Attendance
+                        {
+                            MemberId = members.Count > 1 ? members[1].Id : members[0].Id,
+                            CheckInTime = DateTime.UtcNow.AddHours(-1),
+                            CheckOutTime = null, // currently in gym
+                            Notes = "Personal training session with coach"
+                        },
+                        new Attendance
+                        {
+                            MemberId = members.Count > 2 ? members[2].Id : members[0].Id,
+                            CheckInTime = DateTime.UtcNow.AddDays(-2).AddHours(-5),
+                            CheckOutTime = DateTime.UtcNow.AddDays(-2).AddHours(-3).AddMinutes(-45),
+                            Notes = "Leg day and sauna recovery"
+                        }
+                    };
+                    await context.Attendances.AddRangeAsync(attendances);
+                    await context.SaveChangesAsync();
+                }
+            }
         }
     }
 }
