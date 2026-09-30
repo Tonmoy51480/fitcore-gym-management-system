@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Layout } from './components/layout/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { AttendancePage } from './pages/AttendancePage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { MembersPage } from './pages/MembersPage';
@@ -69,6 +70,8 @@ const AppContent: React.FC = () => {
             onClearInitialRenew={() => setInitialRenewId(null)}
           />
         );
+      case 'attendance':
+        return <AttendancePage />;
       case 'trainers':
         return <TrainersPage />;
       case 'plans':

@@ -11,6 +11,7 @@ import {
   ChevronRight,
   LogOut,
   Zap,
+  UserCheck,
 } from 'lucide-react';
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -37,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'members', label: 'Members', icon: Users },
+    { id: 'attendance', label: 'Attendance Desk', icon: UserCheck },
     { id: 'trainers', label: 'Trainers', icon: Award },
     { id: 'plans', label: 'Membership Plans', icon: Sparkles },
     { id: 'workouts', label: 'Workouts', icon: Dumbbell },
