@@ -56,6 +56,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
 // 5. Services (BLL)
 builder.Services.AddScoped<IMemberService, MemberService>();

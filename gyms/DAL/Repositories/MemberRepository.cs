@@ -65,6 +65,53 @@ namespace DAL.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(List<Member> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, string? search = null, string? status = null, int? planId = null)
+        {
+            var query = _dbSet.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(m => m.Name.Contains(term) || m.Email.Contains(term) || (m.Phone != null && m.Phone.Contains(term)));
+            }
+
+            if (planId.HasValue && planId.Value > 0)
+            {
+                query = query.Where(m => m.MembershipPlanId == planId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(status) && !status.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+            {
+                var now = DateTime.UtcNow;
+                if (status.Equals("Active", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(m => m.ExpiryDate >= now);
+                }
+                else if (status.Equals("Expired", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(m => m.ExpiryDate < now);
+                }
+                else if (status.Equals("Expiring Soon", StringComparison.OrdinalIgnoreCase))
+                {
+                    var warningDate = now.AddDays(7);
+                    query = query.Where(m => m.ExpiryDate >= now && m.ExpiryDate <= warningDate);
+                }
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .Include(m => m.MembershipPlan)
+                .Include(m => m.AssignedTrainer)
+                .Include(m => m.Payments)
+                .OrderByDescending(m => m.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         // Legacy synchronous implementation
         public List<Member> GetExpiredMembers()
         {

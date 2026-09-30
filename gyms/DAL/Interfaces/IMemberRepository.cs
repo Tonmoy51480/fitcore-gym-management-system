@@ -11,6 +11,7 @@ namespace DAL.Interfaces
         Task<List<Member>> GetExpiredMembersAsync();
         Task<List<Member>> GetExpiringSoonMembersAsync(int days = 7);
         Task<List<Member>> GetRecentMembersAsync(int count = 5);
+        Task<(List<Member> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, string? search = null, string? status = null, int? planId = null);
 
         // Legacy synchronous
         List<Member> GetExpiredMembers();
