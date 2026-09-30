@@ -81,7 +81,7 @@ namespace gymandfitness.Controllers
         }
 
         // DELETE: api/member/5
-        [Authorize(Roles = "ADMIN,STAFF")]
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
